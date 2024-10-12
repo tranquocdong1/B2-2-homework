@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tìm kiếm biển số xe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            text-align: center;
+            padding: 50px;
+        }
+        h1 {
+            color: #333;
+        }
+        label, select, p {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        select {
+            padding: 10px;
+            font-size: 16px;
+            width: 200px;
+        }
+        p#plate {
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tìm kiếm biển số xe</h1>
+    <p>Xin chào, đây là server Node.js để tìm kiếm biển số xe!</p>
+    
+    <label for="city">Chọn tỉnh thành:</label>
+    <select id="city">
+        <option value="">--Chọn tỉnh thành--</option>
+    </select>
+    
+    <p id="plate">Biển số xe sẽ hiển thị ở đây</p>
+    
+    <script>
+        // Hàm lấy dữ liệu tỉnh thành và hiển thị biển số
+        async function loadCities() {
+            try {
+                const response = await fetch('/cities');
+                const data = await response.json();
+                const citySelect = document.getElementById('city');
+
+                data.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city.city;
+                    option.textContent = city.city;
+                    citySelect.appendChild(option);
+                });
+
+                citySelect.addEventListener('change', async () => {
+                    const selectedCity = citySelect.value;
+                    if (selectedCity) {
+                        const plateResponse = await fetch(`/plate?city=${selectedCity}`);
+                        const plateData = await plateResponse.json();
+                        document.getElementById('plate').textContent = `Biển số xe: ${plateData.plate_no}`;
+                    } else {
+                        document.getElementById('plate').textContent = 'Vui lòng chọn một tỉnh thành';
+                    }
+                });
+            } catch (error) {
+                console.error('Lỗi khi tải dữ liệu:', error);
+            }
+        }
+
+        // Gọi hàm loadCities khi trang tải xong
+        window.onload = loadCities;
+    </script>
+</body>
+</html>
